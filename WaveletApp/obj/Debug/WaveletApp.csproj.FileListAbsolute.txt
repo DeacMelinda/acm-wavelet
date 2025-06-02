@@ -1,0 +1,10 @@
+C:\Users\Meli\Desktop\MASTER\ACM\Wavelet\WaveletApp\bin\Debug\WaveletApp.exe.config
+C:\Users\Meli\Desktop\MASTER\ACM\Wavelet\WaveletApp\bin\Debug\WaveletApp.exe
+C:\Users\Meli\Desktop\MASTER\ACM\Wavelet\WaveletApp\bin\Debug\WaveletApp.pdb
+C:\Users\Meli\Desktop\MASTER\ACM\Wavelet\WaveletApp\obj\Debug\WaveletApp.csproj.AssemblyReference.cache
+C:\Users\Meli\Desktop\MASTER\ACM\Wavelet\WaveletApp\obj\Debug\WaveletApp.Form1.resources
+C:\Users\Meli\Desktop\MASTER\ACM\Wavelet\WaveletApp\obj\Debug\WaveletApp.Properties.Resources.resources
+C:\Users\Meli\Desktop\MASTER\ACM\Wavelet\WaveletApp\obj\Debug\WaveletApp.csproj.GenerateResource.cache
+C:\Users\Meli\Desktop\MASTER\ACM\Wavelet\WaveletApp\obj\Debug\WaveletApp.csproj.CoreCompileInputs.cache
+C:\Users\Meli\Desktop\MASTER\ACM\Wavelet\WaveletApp\obj\Debug\WaveletApp.exe
+C:\Users\Meli\Desktop\MASTER\ACM\Wavelet\WaveletApp\obj\Debug\WaveletApp.pdb
