@@ -22,32 +22,38 @@ namespace WaveletApp
         {
             scaleTextBox.Text = "10.3";
             offsetTextBox.Text = "12.8";
-            xTextBox.Text = "256";
+            xTextBox.Text = "512";
             yTextBox.Text = "512";
         }
 
         private void UpdateImageAndFields(int level)
         {
-            double.TryParse(scaleTextBox.Text, out double scale);
-            double.TryParse(offsetTextBox.Text, out double offset);
-            int.TryParse(xTextBox.Text, out int x);
-            int.TryParse(yTextBox.Text, out int y);
+            // Get actual min/max of coefficients
+            double min = double.MaxValue;
+            double max = double.MinValue;
 
-            int currentWidth = x >> level;
-            int currentHeight = y >> level;
-
-            // Only draw outside the approximation region
             for (int i = 0; i < 512; i++)
             {
                 for (int j = 0; j < 512; j++)
                 {
-                    if (i < currentHeight && j < currentWidth)
-                    {
-                        // Approximation region (top-left) already filled by SyH/SyV
-                        continue;
-                    }
+                    double val = doublesImage[i, j];
+                    if (val < min) min = val;
+                    if (val > max) max = val;
+                }
+            }
 
-                    // Draw detail coefficients in other 3 regions
+            double scale = 255.0 / (max - min);
+            double offset = -min * scale;
+
+            int.TryParse(xTextBox.Text, out int x);
+            int.TryParse(yTextBox.Text, out int y);
+            int currentWidth = x >> level;
+            int currentHeight = y >> level;
+
+            for (int i = 0; i < 512; i++)
+            {
+                for (int j = 0; j < 512; j++)
+                {
                     double coeff = doublesImage[i, j];
                     int val = (int)(coeff * scale + offset);
                     val = Math.Max(0, Math.Min(255, val));
@@ -55,15 +61,10 @@ namespace WaveletApp
                 }
             }
 
-            // Optional: draw dividing lines (debug)
-            //for (int i = 0; i < 512; i++) bytesImage[currentHeight, i] = 255;
-            //for (int j = 0; j < 512; j++) bytesImage[j, currentWidth] = 255;
-
-            // Shrink for next level
             xTextBox.Text = currentWidth.ToString();
             yTextBox.Text = currentHeight.ToString();
-            scaleTextBox.Text = (scale * 0.9).ToString("F2");
-            offsetTextBox.Text = (offset * 0.9).ToString("F2");
+            scaleTextBox.Text = scale.ToString("F2");
+            offsetTextBox.Text = offset.ToString("F2");
 
             waveletImageBox.Image = BytesToBitmap(bytesImage);
         }
@@ -125,6 +126,7 @@ namespace WaveletApp
                         {
                             int pixelValue = fs.ReadByte();
                             originalImage[y, x] = (byte)pixelValue;
+                            doublesImage[y, x] = (double)pixelValue;
                         }
                     }
                     bmpHeader = header;
@@ -156,7 +158,7 @@ namespace WaveletApp
                 for (int j = i - 4; j <= i + 4; j++, k++)
                 {
                     int realX = RealIndexFor(j, size);
-                    byte pixel = originalImage[offsetY + row, offsetX + realX];
+                    double pixel = doublesImage[offsetY + row, offsetX + realX];  // convert to double
                     sumAnL += Constants.AnalysisL[k] * pixel;
                     sumAnH += Constants.AnalysisH[k] * pixel;
                 }
@@ -230,11 +232,10 @@ namespace WaveletApp
                     sumSyH += Constants.SynthesisH[k] * lineSyH[realIdx];
                 }
 
-                double result = sumSyL + sumSyH;
-                result = Math.Max(0, Math.Min(255, result));
-                bytesImage[offsetY + row, offsetX + i] = (byte)result;
+                doublesImage[offsetY + row, offsetX + i] = sumSyL + sumSyH;
             }
         }
+
 
 
 
@@ -263,18 +264,20 @@ namespace WaveletApp
                     sumSyH += Constants.SynthesisH[k] * lineSyH[realIdx];
                 }
 
-                double result = sumSyL + sumSyH;
-                result = Math.Max(0, Math.Min(255, result));
-                bytesImage[offsetY + i, offsetX + col] = (byte)result;
+                doublesImage[offsetY + i, offsetX + col] = sumSyL + sumSyH;
             }
         }
 
 
+
         private void AnH1Button_Click(object sender, EventArgs e)
         {
+
             int size = 512;
+
             for (int row = 0; row < size; row++)
                 AnH(row, 0, 0, size);
+
 
             UpdateImageAndFields(0);
         }
@@ -294,7 +297,6 @@ namespace WaveletApp
             int size = 512;
             for (int row = 0; row < size; row++)
                 SyH(row, 0, 0, size);
-
             UpdateImageAndFields(0);
         }
 
@@ -303,7 +305,6 @@ namespace WaveletApp
             int size = 512;
             for (int col = 0; col < size; col++)
                 SyV(col, 0, 0, size);
-
             UpdateImageAndFields(0);
         }
 
